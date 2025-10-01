@@ -4,11 +4,42 @@
   <meta charset="UTF-8">
   <title>Airbnb PDF Generator</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; max-width: 500px; }
-    input, button { margin: 5px 0; padding: 8px; width: 100%; box-sizing: border-box; }
-    label { display: block; margin-top: 10px; }
-    h1 { text-align: center; }
-  </style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 5vw; /* Use viewport width units for responsive margins */
+    max-width: 500px;
+    box-sizing: border-box;
+  }
+
+  input, button {
+    margin: 5px 0;
+    padding: 1em;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  label {
+    display: block;
+    margin-top: 1em;
+  }
+
+  h1 {
+    text-align: center;
+  }
+
+  /* Optional: Media queries for smaller screens */
+  @media (max-width: 600px) {
+    body {
+      margin: 3vw; /* Reduce margins on small screens */
+    }
+  }
+
+  @media (min-width: 1200px) {
+    body {
+      margin: 10vw; /* Increase margins on very large screens */
+    }
+  }
+</style>
 </head>
 <body>
   <h1>Airbnb PDF Generator</h1>
