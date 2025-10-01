@@ -152,6 +152,18 @@
 
         if (!response.ok) throw new Error('Network response was not ok');
 
+        // ===============================
+        // TEST MODE: Log response instead of PDF
+        // ===============================
+        const json = await response.json();
+        console.log('Webhook response:', json);
+        alert('Webhook hit successfully! Check console for data.');
+
+        // ===============================
+        // TO ENABLE PDF DOWNLOAD:
+        // Comment out the above block and uncomment below
+        // ===============================
+        /*
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -160,8 +172,10 @@
         document.body.appendChild(a);
         a.click();
         a.remove();
+        */
+
       } catch (error) {
-        alert('Error generating PDF: ' + error.message);
+        alert('Error hitting webhook: ' + error.message);
         console.error(error);
       }
     });
