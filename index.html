@@ -2,90 +2,134 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Airbnb PDF Generator</title>
   <style>
-  body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center; /* centers horizontally */
-    align-items: flex-start; /* align to top of page */
-    min-height: 100vh;
-    margin: 0;
-    padding: 20px;
-    background: #f9f9f9; /* optional: light background */
-  }
-
-  .container {
-    width: 100%;
-    max-width: 500px; /* prevents it from getting too wide */
-    background: #fff;
-    padding: 2em;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    box-sizing: border-box;
-  }
-
-  input, button {
-    margin: 5px 0;
-    padding: 1em;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  label {
-    display: block;
-    margin-top: 1em;
-  }
-
-  h1 {
-    text-align: center;
-    margin-bottom: 1em;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 600px) {
-    .container {
-      padding: 1em;
+    /* Reset default margin/padding */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-  }
-</style>
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: #fff;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5em;
+      font-size: 1.8em;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5em;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="checkbox"],
+    button {
+      width: 100%;
+      padding: 0.8em;
+      margin-bottom: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      margin-right: 0.5em;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1em;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.2em;
+      }
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
 </head>
 <body>
- <body>
   <div class="container">
     <h1>Airbnb PDF Generator</h1>
     <form id="airbnbForm">
- 
-    <label>
-      Location:
-      <input type="text" name="location" required>
-    </label>
-    <label>
-      Check-in Date:
-      <input type="date" name="checkin" required>
-    </label>
-    <label>
-      Check-out Date:
-      <input type="date" name="checkout" required>
-    </label>
-    <label>
-      Guests:
-      <input type="number" name="guests" min="1" value="1" required>
-    </label>
-    <label>
-      Pool:
-      <input type="checkbox" name="pool">
-    </label>
-    <label>
-      Pickleball:
-      <input type="checkbox" name="pickleball">
-    </label>
-    <label>
-      Private Gym:
-      <input type="checkbox" name="privateGym">
-    </label>
-    <button type="submit">Generate PDF</button>
-  </form>
+      <label>
+        Location:
+        <input type="text" name="location" required>
+      </label>
+      <label>
+        Check-in Date:
+        <input type="date" name="checkin" required>
+      </label>
+      <label>
+        Check-out Date:
+        <input type="date" name="checkout" required>
+      </label>
+      <label>
+        Guests:
+        <input type="number" name="guests" min="1" value="1" required>
+      </label>
+
+      <div class="checkbox-group">
+        <input type="checkbox" name="pool" id="pool">
+        <label for="pool">Pool</label>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" name="pickleball" id="pickleball">
+        <label for="pickleball">Pickleball</label>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" name="gym" id="gym">
+        <label for="gym">Private Gym</label>
+      </div>
+
+      <button type="submit">Generate PDF</button>
+    </form>
   </div>
 
   <script>
@@ -101,7 +145,7 @@
         guests: form.guests.value,
         pool: form.pool.checked,
         pickleball: form.pickleball.checked,
-        privateGym: form.privateGym.checked
+        privateGym: form.gym.checked
       };
 
       try {
