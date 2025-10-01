@@ -5,96 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Airbnb PDF Generator</title>
   <style>
-    /* Reset default margin/padding */
-    * {
-      margin: 0;
-      padding: 0;
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      background: #f5f5f5;
+    }
+    .container {
+      width: 90%;
+      max-width: 400px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    input, button { 
+      margin: 5px 0; 
+      padding: 10px; 
+      width: 100%; 
       box-sizing: border-box;
     }
-
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      padding: 20px;
-      background: #f2f2f2;
+    label { display: block; margin-top: 10px; }
+    button { 
+      background-color: #007BFF; 
+      color: #fff; 
+      border: none; 
+      border-radius: 5px; 
+      cursor: pointer; 
     }
-
-    .container {
-      width: 100%;
-      max-width: 500px;
-      background: #fff;
-      padding: 2em;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 1.5em;
-      font-size: 1.8em;
-      color: #333;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5em;
-      font-weight: bold;
-      color: #555;
-    }
-
-    input[type="text"],
-    input[type="date"],
-    input[type="number"],
-    input[type="checkbox"],
-    button {
-      width: 100%;
-      padding: 0.8em;
-      margin-bottom: 1em;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-    }
-
-    input[type="checkbox"] {
-      width: auto;
-      margin-right: 0.5em;
-    }
-
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1em;
-    }
-
-    button {
-      background-color: #007BFF;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 1.2em;
-      }
-      h1 {
-        font-size: 1.5em;
-      }
-    }
+    button:hover { background-color: #0056b3; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Airbnb PDF Generator</h1>
+    <h1 style="text-align:center;">Airbnb PDF Generator</h1>
     <form id="airbnbForm">
       <label>
         Location:
@@ -102,38 +50,46 @@
       </label>
       <label>
         Check-in Date:
-        <input type="date" name="checkin" required>
+        <input type="date" name="checkin" id="checkin" required>
       </label>
       <label>
         Check-out Date:
-        <input type="date" name="checkout" required>
+        <input type="date" name="checkout" id="checkout" required>
       </label>
       <label>
         Guests:
         <input type="number" name="guests" min="1" value="1" required>
       </label>
-
-      <div class="checkbox-group">
-        <input type="checkbox" name="pool" id="pool">
-        <label for="pool">Pool</label>
-      </div>
-
-      <div class="checkbox-group">
-        <input type="checkbox" name="pickleball" id="pickleball">
-        <label for="pickleball">Pickleball</label>
-      </div>
-
-      <div class="checkbox-group">
-        <input type="checkbox" name="gym" id="gym">
-        <label for="gym">Private Gym</label>
-      </div>
-
+      <label>
+        Pool:
+        <input type="checkbox" name="pool">
+      </label>
+      <label>
+        Pickleball:
+        <input type="checkbox" name="pickleball">
+      </label>
+      <label>
+        Private Gym:
+        <input type="checkbox" name="gym">
+      </label>
       <button type="submit">Generate PDF</button>
     </form>
   </div>
 
   <script>
     const form = document.getElementById('airbnbForm');
+    const checkin = document.getElementById('checkin');
+    const checkout = document.getElementById('checkout');
+
+    // Restrict past dates
+    const today = new Date().toISOString().split('T')[0];
+    checkin.min = today;
+    checkout.min = today;
+
+    // Ensure checkout is never before check-in
+    checkin.addEventListener('change', () => {
+      checkout.min = checkin.value;
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
