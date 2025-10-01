@@ -6,8 +6,22 @@
   <style>
   body {
     font-family: Arial, sans-serif;
-    margin: 5vw; /* Use viewport width units for responsive margins */
-    max-width: 500px;
+    display: flex;
+    justify-content: center; /* centers horizontally */
+    align-items: flex-start; /* align to top of page */
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background: #f9f9f9; /* optional: light background */
+  }
+
+  .container {
+    width: 100%;
+    max-width: 500px; /* prevents it from getting too wide */
+    background: #fff;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     box-sizing: border-box;
   }
 
@@ -25,26 +39,23 @@
 
   h1 {
     text-align: center;
+    margin-bottom: 1em;
   }
 
-  /* Optional: Media queries for smaller screens */
+  /* Responsive adjustments */
   @media (max-width: 600px) {
-    body {
-      margin: 3vw; /* Reduce margins on small screens */
-    }
-  }
-
-  @media (min-width: 1200px) {
-    body {
-      margin: 10vw; /* Increase margins on very large screens */
+    .container {
+      padding: 1em;
     }
   }
 </style>
 </head>
 <body>
-  <h1>Airbnb PDF Generator</h1>
-
-  <form id="airbnbForm">
+ <body>
+  <div class="container">
+    <h1>Airbnb PDF Generator</h1>
+    <form id="airbnbForm">
+ 
     <label>
       Location:
       <input type="text" name="location" required>
@@ -75,6 +86,7 @@
     </label>
     <button type="submit">Generate PDF</button>
   </form>
+  </div>
 
   <script>
     const form = document.getElementById('airbnbForm');
