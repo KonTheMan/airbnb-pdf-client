@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Airbnb PDF Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, button { margin: 5px 0; padding: 8px; width: 100%; }
+    label { display: block; margin-top: 10px; }
+  </style>
+</head>M
+<body>
+  <h1>Airbnb PDF Generator</h1>
+  
+  <form id="airbnbForm">
+    <label>
+      Location:
+      <input type="text" name="location" required>
+    </label>
+    <label>
+      Check-in Date:
+      <input type="date" name="checkin" required>
+    </label>
+    <label>
+      Check-out Date:
+      <input type="date" name="checkout" required>
+    </label>
+    <label>
+      Guests:
+      <input type="number" name="guests" min="1" value="1" required>
+    </label>
+   <label>
+    Pool:
+    <input type="checkbox" name="pool">
+  </label>
+
+  <label>
+    Pickleball:
+    <input type="checkbox" name="pickleball">
+  </label>
+
+  <label>
+    Private Gym:
+    <input type="checkbox" name="gym">
+  </label>
+    <button type="submit">Generate PDF</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('airbnbForm');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        location: form.location.value,
+        checkin: form.checkin.value,
+        checkout: form.checkout.value,
+        guests: form.guests.value
+      };
+
+      try {
+        const response = await fetch('https://n8n-hqbt.onrender.com/webhook-test/airbnb-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Airbnb_Search.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (error) {
+        alert('Error generating PDF: ' + error.message);
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
