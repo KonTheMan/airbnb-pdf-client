@@ -54,11 +54,13 @@
       cursor: pointer;
     }
 
-    button:hover {
+    button:hover { 
       background-color: #0056b3;
-    }
+    } 
+         
   </style>
-</head>
+<!-- Margin, text fields don't touch -->
+</head>  
 <body>
   <div class="container">
     <h1>Airbnb PDF Generator</h1>
@@ -91,12 +93,13 @@
         Private Gym:
         <input type="checkbox" name="gym">
       </label>
-      <button type="submit">Generate PDF</button>
+      <button type="submit">Send Test Data</button> <!-- Button text shows test mode 
+    disable using <button type="submit">Generate PDF</button> -->
     </form>
   </div>
-
-  <script>
+  <script> 
     const form = document.getElementById('airbnbForm');
+    const submitButton = form.querySelector('button'); // Button element
     const checkin = form.checkin;
     const checkout = form.checkout;
 
@@ -110,7 +113,7 @@
     checkin.min = todayStr;
     checkout.min = todayStr;
 
-    // Enforce rules dynamically
+    // Dynamic date rules
     checkin.addEventListener('change', () => {
       if (checkin.value < todayStr) checkin.value = todayStr;
       if (checkout.value < checkin.value) checkout.value = checkin.value;
@@ -153,15 +156,14 @@
         if (!response.ok) throw new Error('Network response was not ok');
 
         // ===============================
-        // TEST MODE: Log response instead of PDF
+        // TEST MODE: log data instead of PDF
         // ===============================
         const json = await response.json();
         console.log('Webhook response:', json);
         alert('Webhook hit successfully! Check console for data.');
 
         // ===============================
-        // TO ENABLE PDF DOWNLOAD:
-        // Comment out the above block and uncomment below
+        // PDF MODE: Uncomment this to enable PDF download
         // ===============================
         /*
         const blob = await response.blob();
@@ -172,8 +174,10 @@
         document.body.appendChild(a);
         a.click();
         a.remove();
-        */
 
+        // Change button text back
+        submitButton.textContent = "Generate PDF";
+        */
       } catch (error) {
         alert('Error hitting webhook: ' + error.message);
         console.error(error);
