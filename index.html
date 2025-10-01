@@ -10,7 +10,7 @@
       margin: 0;
       padding: 0;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
       min-height: 100vh;
       background: #f7f7f7;
@@ -23,7 +23,6 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      margin-top: 20px;
     }
 
     h1 {
@@ -58,65 +57,55 @@
     button:hover { 
       background-color: #0056b3;
     } 
-
-    #listingsContainer {
-      width: 90%;
-      max-width: 800px;
-      margin: 20px auto;
-    }
-
-    .listing-card {
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px 0;
-      background-color: #fff;
-    }
-
-    .listing-card img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 5px;
-      margin-right: 5px;
-    }
-
-    .images-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
   </style>
-</head>
+</head>  
 <body>
   <div class="container">
     <h1>Airbnb PDF Generator</h1>
     <form id="airbnbForm">
-      <label>Location:<input type="text" name="location" required></label>
-      <label>Check-in Date:<input type="date" name="checkin" required></label>
-      <label>Check-out Date:<input type="date" name="checkout" required></label>
-      <label>Guests:<input type="number" name="guests" min="1" value="1" required></label>
-      <label>Pool:<input type="checkbox" name="pool"></label>
-      <label>Pickleball:<input type="checkbox" name="pickleball"></label>
-      <label>Private Gym:<input type="checkbox" name="gym"></label>
-      <button type="submit">Search</button>
+      <label>
+        Location:
+        <input type="text" name="location" required>
+      </label>
+      <label>
+        Check-in Date:
+        <input type="date" name="checkin" required>
+      </label>
+      <label>
+        Check-out Date:
+        <input type="date" name="checkout" required>
+      </label>
+      <label>
+        Guests:
+        <input type="number" name="guests" min="1" value="1" required>
+      </label>
+      <label>
+        Pool:
+        <input type="checkbox" name="pool">
+      </label>
+      <label>
+        Pickleball:
+        <input type="checkbox" name="pickleball">
+      </label>
+      <label>
+        Private Gym:
+        <input type="checkbox" name="gym">
+      </label>
+      <button type="submit">Send Test Data</button>
     </form>
   </div>
-
-  <div id="listingsContainer"></div>
 
   <script>
     const form = document.getElementById('airbnbForm');
     const checkin = form.checkin;
     const checkout = form.checkout;
 
-    // Set min dates
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
     const todayStr = `${yyyy}-${mm}-${dd}`;
+
     checkin.min = todayStr;
     checkout.min = todayStr;
 
@@ -130,62 +119,9 @@
       if (checkout.value < checkin.value) checkout.value = checkin.value;
     });
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
-
-      if (checkin.value < todayStr) {
-        alert('Check-in date cannot be in the past.');
-        return;
-      }
-      if (checkout.value < checkin.value) {
-        alert('Check-out date cannot be before check-in.');
-        return;
-      }
-
-      const data = {
-        location: form.location.value,
-        checkin: form.checkin.value,
-        checkout: form.checkout.value,
-        guests: Number(form.guests.value),
-        pool: form.pool.checked,
-        pickleball: form.pickleball.checked,
-        privateGym: form.gym.checked
-      };
-
-      try {
-        const response = await fetch('https://n8n-hqbt.onrender.com/webhook-test/airbnb-search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        if (!response.ok) throw new Error('Network response was not ok');
-
-        const json = await response.json();
-        const listingsContainer = document.getElementById('listingsContainer');
-        listingsContainer.innerHTML = ''; // Clear previous results
-
-        json.forEach(listing => {
-          const card = document.createElement('div');
-          card.className = 'listing-card';
-          card.innerHTML = `
-            <h3>${listing.title}</h3>
-            <p><strong>Location:</strong> ${listing.location}</p>
-            <p><strong>Price:</strong> ${listing.price}</p>
-            <p><strong>Pool:</strong> ${listing.pool ? 'Yes' : 'No'}, 
-               <strong>Pickleball:</strong> ${listing.pickleball ? 'Yes' : 'No'}, 
-               <strong>Private Gym:</strong> ${listing.privateGym ? 'Yes' : 'No'}</p>
-            <div class="images-row">
-              ${listing.images.map(img => `<img src="${img}" alt="Listing Image">`).join('')}
-            </div>
-          `;
-          listingsContainer.appendChild(card);
-        });
-
-      } catch (error) {
-        alert('Error hitting webhook: ' + error.message);
-        console.error(error);
-      }
+      alert('Form submitted! Location: ' + form.location.value);
     });
   </script>
 </body>
