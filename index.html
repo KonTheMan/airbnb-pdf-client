@@ -5,110 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Airbnb PDF Generator</title>
   <style>
-    /* Basic Reset */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 20px;
-      background: #f4f4f4;
+      background: #f7f7f7;
     }
 
-    form {
-      background: white;
+    .container {
+      width: 90%;
+      max-width: 400px;
+      background: #fff;
       padding: 20px;
       border-radius: 10px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
     h1 {
       text-align: center;
       margin-bottom: 20px;
-      font-size: 1.8em;
     }
 
     label {
       display: block;
-      margin-bottom: 10px;
+      margin-top: 10px;
+      font-weight: bold;
     }
 
     input, button {
-      width: 100%;
-      padding: 10px;
       margin-top: 5px;
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
       border-radius: 5px;
       border: 1px solid #ccc;
-      font-size: 1em;
+      font-size: 16px;
     }
 
     button {
-      background: #007bff;
+      margin-top: 20px;
+      background-color: #007bff;
       color: white;
       border: none;
       cursor: pointer;
-      margin-top: 15px;
     }
 
     button:hover {
-      background: #0056b3;
-    }
-
-    .checkbox-group {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-
-    .checkbox-group label {
-      flex: 1;
-      margin-right: 10px;
-    }
-
-    @media (max-width: 500px) {
-      form {
-        padding: 15px;
-      }
-      h1 {
-        font-size: 1.5em;
-      }
-      input, button {
-        font-size: 0.9em;
-        padding: 8px;
-      }
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-  <form id="airbnbForm">
+  <div class="container">
     <h1>Airbnb PDF Generator</h1>
-    <label>
-      Location:
-      <input type="text" name="location" required>
-    </label>
-    <label>
-      Check-in Date:
-      <input type="date" id="checkin" name="checkin" required>
-    </label>
-    <label>
-      Check-out Date:
-      <input type="date" id="checkout" name="checkout" required>
-    </label>
-    <label>
-      Guests:
-      <input type="number" name="guests" min="1" value="1" required>
-    </label>
-
-    <div class="checkbox-group">
+    <form id="airbnbForm">
+      <label>
+        Location:
+        <input type="text" name="location" required>
+      </label>
+      <label>
+        Check-in Date:
+        <input type="date" name="checkin" required>
+      </label>
+      <label>
+        Check-out Date:
+        <input type="date" name="checkout" required>
+      </label>
+      <label>
+        Guests:
+        <input type="number" name="guests" min="1" value="1" required>
+      </label>
       <label>
         Pool:
         <input type="checkbox" name="pool">
@@ -121,31 +91,40 @@
         Private Gym:
         <input type="checkbox" name="gym">
       </label>
-    </div>
-
-    <button type="submit">Generate PDF</button>
-  </form>
+      <button type="submit">Generate PDF</button>
+    </form>
+  </div>
 
   <script>
     const form = document.getElementById('airbnbForm');
-    const checkin = document.getElementById('checkin');
-    const checkout = document.getElementById('checkout');
+    const checkin = form.checkin;
+    const checkout = form.checkout;
 
-    const today = new Date().toISOString().split('T')[0];
-    checkin.min = today;
-    checkout.min = today;
+    // Mobile-proof min date
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
 
-    // Update checkout min when check-in changes
+    checkin.min = todayStr;
+    checkout.min = todayStr;
+
+    // Enforce rules dynamically
     checkin.addEventListener('change', () => {
+      if (checkin.value < todayStr) checkin.value = todayStr;
+      if (checkout.value < checkin.value) checkout.value = checkin.value;
       checkout.min = checkin.value;
+    });
+
+    checkout.addEventListener('change', () => {
       if (checkout.value < checkin.value) checkout.value = checkin.value;
     });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Validation
-      if (checkin.value < today) {
+      if (checkin.value < todayStr) {
         alert('Check-in date cannot be in the past.');
         return;
       }
