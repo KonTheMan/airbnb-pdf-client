@@ -332,11 +332,54 @@
         text-align: center;
       }
     }
+  /* ... all your existing styles ... */
+
+  /* === DARK MODE STYLES === */
+  body.dark-mode {
+    background: #121212;
+    color: #e0e0e0;
+  }
+
+  body.dark-mode .search-section,
+  body.dark-mode .results-header,
+  body.dark-mode .listing-card,
+  body.dark-mode .no-results,
+  body.dark-mode .loading,
+  body.dark-mode .error-message {
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+
+  body.dark-mode input[type="text"],
+  body.dark-mode input[type="date"],
+  body.dark-mode input[type="number"] {
+    background: #2b2b2b;
+    color: #e0e0e0;
+    border: 1px solid #444;
+  }
+
+  body.dark-mode .submit-btn {
+    background-color: #FF385C;
+  }
+
+  body.dark-mode .new-search-btn {
+    background: #333;
+    color: #FF385C;
+    border: 2px solid #FF385C;
+  }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Search Form -->
+   
+    <!-- Dark Mode Toggle -->
+    <div style="text-align: right; margin-bottom: 10px;">
+      <label>
+        <input type="checkbox" id="darkModeToggle">
+        Dark Mode
+      </label>
+    </div>
+     <!-- Search Form -->
     <div class="search-section" id="searchSection">
       <h1>Find Your Perfect Airbnb</h1>
       <form id="airbnbForm">
@@ -578,6 +621,19 @@
       searchSection.style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    // Dark Mode
+const darkModeToggle = document.getElementById('darkModeToggle');
+
+// Enable dark mode if system prefers
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.body.classList.add('dark-mode');
+  darkModeToggle.checked = true;
+}
+
+// Manual toggle
+darkModeToggle.addEventListener('change', () => {
+  document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+});
   </script>
 </body>
 </html>
