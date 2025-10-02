@@ -3,186 +3,581 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Airbnb PDF Generator</title>
+  <title>Airbnb Search & Filter</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    * {
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
       background: #f7f7f7;
+      color: #222;
+      line-height: 1.6;
     }
 
     .container {
       width: 90%;
-      max-width: 400px;
-      background: #fff;
+      max-width: 1400px;
+      margin: 0 auto;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
-    h1 {
+    /* Search Form Styles */
+    .search-section {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .search-section h1 {
       text-align: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+      color: #222;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
       margin-bottom: 20px;
     }
 
     label {
       display: block;
-      margin-top: 10px;
-      font-weight: bold;
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #222;
     }
 
-    input, button {
-      margin-top: 5px;
-      padding: 10px;
+    input[type="text"],
+    input[type="date"],
+    input[type="number"] {
       width: 100%;
-      box-sizing: border-box;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
       font-size: 16px;
+      transition: border-color 0.2s;
     }
 
-    button {
-      margin-top: 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #FF385C;
+    }
+
+    .amenities-section {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .amenity-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       cursor: pointer;
     }
 
-    button:hover { 
+    .amenity-checkbox input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #FF385C;
+    }
+
+    .amenity-checkbox label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .submit-btn:hover {
       background-color: #0056b3;
-    } 
-         
+    }
+
+    .submit-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    /* Results Section */
+    .results-section {
+      display: none;
+    }
+
+    .results-section.active {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .results-count {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .new-search-btn {
+      padding: 10px 20px;
+      background: #fff;
+      color: #FF385C;
+      border: 2px solid #FF385C;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .new-search-btn:hover {
+      background: #FF385C;
+      color: white;
+    }
+
+    .listings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .listing-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .listing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .listing-image {
+      width: 100%;
+      height: 220px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 48px;
+      position: relative;
+    }
+
+    .listing-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .compatibility-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .listing-content {
+      padding: 20px;
+    }
+
+    .listing-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .listing-location {
+      color: #717171;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .amenities-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+      min-height: 30px;
+    }
+
+    .amenity-tag {
+      background: #FFF4F4;
+      color: #FF385C;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .listing-price {
+      font-size: 16px;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .listing-price span {
+      font-weight: 400;
+      font-size: 14px;
+      color: #717171;
+    }
+
+    /* Loading & Error States */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      font-size: 18px;
+      color: #717171;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+
+    .error-message {
+      background: #FFF4F4;
+      color: #C13515;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .no-results h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    .no-results p {
+      color: #717171;
+      font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .amenities-section {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .results-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
   </style>
-<!-- Margin, text fields don't touch -->
-</head>  
+</head>
 <body>
   <div class="container">
-    <h1>Airbnb PDF Generator</h1>
-    <form id="airbnbForm">
-      <label>
-        Location:
-        <input type="text" name="location" required>
-      </label>
-      <label>
-        Check-in Date:
-        <input type="date" name="checkin" required>
-      </label>
-      <label>
-        Check-out Date:
-        <input type="date" name="checkout" required>
-      </label>
-      <label>
-        Guests:
-        <input type="number" name="guests" min="1" value="1" required>
-      </label>
-      <label>
-        Pool:
-        <input type="checkbox" name="pool">
-      </label>
-      <label>
-        Pickleball:
-        <input type="checkbox" name="pickleball">
-      </label>
-      <label>
-        Private Gym:
-        <input type="checkbox" name="gym">
-      </label>
-      <button type="submit">Send Test Data</button> <!-- Button text shows test mode 
-    disable using <button type="submit">Generate PDF</button> -->
-    </form>
+    <!-- Search Form -->
+    <div class="search-section" id="searchSection">
+      <h1>Find Your Perfect Airbnb</h1>
+      <form id="airbnbForm">
+        <div class="form-grid">
+          <div>
+            <label>Location</label>
+            <input type="text" name="location" placeholder="Where are you going?" required>
+          </div>
+          <div>
+            <label>Check-in Date</label>
+            <input type="date" name="checkin" required>
+          </div>
+          <div>
+            <label>Check-out Date</label>
+            <input type="date" name="checkout" required>
+          </div>
+          <div>
+            <label>Guests</label>
+            <input type="number" name="guests" min="1" value="1" required>
+          </div>
+        </div>
+
+        <div class="amenities-section">
+          <strong style="width: 100%; margin-bottom: -10px;">Amenities:</strong>
+          <div class="amenity-checkbox">
+            <input type="checkbox" id="pool" name="pool">
+            <label for="pool">Pool</label>
+          </div>
+          <div class="amenity-checkbox">
+            <input type="checkbox" id="pickleball" name="pickleball">
+            <label for="pickleball">Pickleball</label>
+          </div>
+          <div class="amenity-checkbox">
+            <input type="checkbox" id="gym" name="gym">
+            <label for="gym">Private Gym</label>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Search Listings</button>
+      </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section" id="resultsSection">
+      <div class="results-header">
+        <div class="results-count" id="resultsCount"></div>
+        <button class="new-search-btn" onclick="newSearch()">New Search</button>
+      </div>
+      <div id="listingsContainer"></div>
+    </div>
   </div>
- <script>
-  const form = document.getElementById('airbnbForm');
-  const submitButton = form.querySelector('button');
-  const checkin = form.checkin;
-  const checkout = form.checkout;
 
-  // Mobile-proof min date
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const todayStr = `${yyyy}-${mm}-${dd}`;
+  <script>
+    const form = document.getElementById('airbnbForm');
+    const submitButton = form.querySelector('.submit-btn');
+    const checkin = form.checkin;
+    const checkout = form.checkout;
+    const searchSection = document.getElementById('searchSection');
+    const resultsSection = document.getElementById('resultsSection');
+    const listingsContainer = document.getElementById('listingsContainer');
+    const resultsCount = document.getElementById('resultsCount');
 
-  checkin.min = todayStr;
-  checkout.min = todayStr;
+    // Set minimum dates to today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
 
-  // Dynamic date rules
-  checkin.addEventListener('change', () => {
-    if (checkin.value < todayStr) checkin.value = todayStr;
-    if (checkout.value < checkin.value) checkout.value = checkin.value;
-    checkout.min = checkin.value;
-  });
+    checkin.min = todayStr;
+    checkin.value = ''; // Clear any pre-filled dates
+    checkout.min = todayStr;
+    checkout.value = '';
 
-  checkout.addEventListener('change', () => {
-    if (checkout.value < checkin.value) checkout.value = checkin.value;
-  });
+    // Dynamic date validation
+    checkin.addEventListener('change', () => {
+      // Ensure check-in is not in the past
+      const selectedDate = new Date(checkin.value);
+      if (selectedDate < today) {
+        checkin.value = todayStr;
+        alert('Check-in date cannot be in the past.');
+      }
+      
+      // Update checkout minimum to be same or after check-in
+      if (checkin.value) {
+        checkout.min = checkin.value;
+        // If checkout is before new check-in, update it
+        if (checkout.value && checkout.value < checkin.value) {
+          checkout.value = checkin.value;
+        }
+      }
+    });
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    checkout.addEventListener('change', () => {
+      // Ensure checkout is not before check-in
+      if (checkin.value && checkout.value < checkin.value) {
+        checkout.value = checkin.value;
+        alert('Check-out date cannot be before check-in date.');
+      }
+      
+      // Ensure checkout is not in the past
+      const selectedDate = new Date(checkout.value);
+      if (selectedDate < today) {
+        checkout.value = todayStr;
+        alert('Check-out date cannot be in the past.');
+      }
+    });
 
-    if (checkin.value < todayStr) {
-      alert('Check-in date cannot be in the past.');
-      return;
-    }
-    if (checkout.value < checkin.value) {
-      alert('Check-out date cannot be before check-in.');
-      return;
-    }
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    const data = {
-      location: form.location.value,
-      checkin: form.checkin.value,
-      checkout: form.checkout.value,
-      guests: Number(form.guests.value),
-      pool: form.pool.checked,
-      pickleball: form.pickleball.checked,
-      privateGym: form.gym.checked
-    };
-
-    try {
-      const response = await fetch('https://n8n-hqbt.onrender.com/webhook/airbnb-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        mode: 'cors' // enable cross-origin requests
-      });
-
-      if (!response.ok) {
-        console.error('Server returned error:', response.status, response.statusText);
-        alert('Webhook error: ' + response.statusText);
+      // Validate dates before submission
+      if (checkin.value < todayStr) {
+        alert('Check-in date cannot be in the past.');
+        return;
+      }
+      if (checkout.value < checkin.value) {
+        alert('Check-out date cannot be before check-in.');
+        return;
+      }
+      if (checkout.value < todayStr) {
+        alert('Check-out date cannot be in the past.');
         return;
       }
 
-      const json = await response.json();
-      console.log('Webhook response:', json);
-      alert('Webhook hit successfully! Check console for data.');
+      const data = {
+        location: form.location.value,
+        checkin: form.checkin.value,
+        checkout: form.checkout.value,
+        guests: Number(form.guests.value),
+        pool: form.pool.checked,
+        pickleball: form.pickleball.checked,
+        privateGym: form.gym.checked,
+        gym: form.gym.checked  // Add both for compatibility
+      };
 
-      // ===============================
-      // PDF MODE: Uncomment to enable PDF download
-      // ===============================
-      /*
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Airbnb_Search.pdf';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      submitButton.textContent = "Generate PDF";
-      */
-    } catch (error) {
-      console.error('Network or CORS error:', error);
-      alert('Error hitting webhook: ' + error.message);
+      // Show loading state
+      searchSection.style.display = 'none';
+      resultsSection.classList.add('active');
+      listingsContainer.innerHTML = '<div class="loading">Searching for listings</div>';
+      submitButton.disabled = true;
+
+      try {
+        const response = await fetch('https://n8n-hqbt.onrender.com/webhook/airbnb-search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('Webhook response:', result);
+
+        // Handle response - could be array or single object
+        const listings = Array.isArray(result) ? result : [result];
+        displayListings(listings);
+
+      } catch (error) {
+        console.error('Error:', error);
+        listingsContainer.innerHTML = `
+          <div class="error-message">
+            <strong>Error loading listings</strong><br>
+            ${error.message}<br>
+            Please try again.
+          </div>
+        `;
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    function displayListings(listings) {
+      // Check if no results or error message
+      if (listings.length === 0 || (listings.length === 1 && listings[0].message)) {
+        listingsContainer.innerHTML = `
+          <div class="no-results">
+            <h3>No listings found</h3>
+            <p>Try adjusting your search criteria or amenity filters</p>
+          </div>
+        `;
+        resultsCount.textContent = '0 listings found';
+        return;
+      }
+
+      // Update results count
+      resultsCount.textContent = `${listings.length} listing${listings.length !== 1 ? 's' : ''} found`;
+
+      // Generate listing cards
+      const listingsHTML = listings.map(listing => {
+        const amenitiesHTML = listing.matchedAmenities && listing.matchedAmenities.length > 0
+          ? listing.matchedAmenities.map(amenity => 
+              `<span class="amenity-tag">${amenity}</span>`
+            ).join('')
+          : '';
+
+        const score = listing.compatibilityScore || 0;
+        const name = listing.title || 'Luxury Property';
+        const location = listing.locationSubtitle || listing.location || 'Premium Location';
+        
+        // Extract price from the breakdown
+        let pricePerNight = null;
+        if (listing.price && listing.price.breakDown && listing.price.breakDown.basePrice) {
+          const basePrice = listing.price.breakDown.basePrice.description;
+          const match = basePrice.match(/\$([0-9,.]+)/);
+          if (match) {
+            pricePerNight = match[1];
+          }
+        }
+        
+        // Get main image
+        const imageUrl = listing.thumbnail || (listing.images && listing.images[0] ? listing.images[0].imageUrl : null);
+
+        return `
+          <div class="listing-card" onclick="window.open('${listing.url}', '_blank')">
+            <div class="listing-image" style="${imageUrl ? `background-image: url('${imageUrl}'); background-size: cover; background-position: center;` : ''}">
+              ${!imageUrl ? '🏠' : ''}
+              ${score > 0 ? `<span class="compatibility-badge">✓ ${score} Match${score > 1 ? 'es' : ''}</span>` : ''}
+            </div>
+            <div class="listing-content">
+              <div class="listing-title">${name}</div>
+              <div class="listing-location">${location}</div>
+              ${amenitiesHTML ? `<div class="amenities-tags">${amenitiesHTML}</div>` : '<div class="amenities-tags"></div>'}
+              ${pricePerNight ? `<div class="listing-price">${pricePerNight} <span>/ night</span></div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      listingsContainer.innerHTML = `<div class="listings-grid">${listingsHTML}</div>`;
     }
-  });
-</script>
+
+    function newSearch() {
+      resultsSection.classList.remove('active');
+      searchSection.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
 </body>
 </html>
