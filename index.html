@@ -97,92 +97,92 @@
     disable using <button type="submit">Generate PDF</button> -->
     </form>
   </div>
-  <script> 
-    const form = document.getElementById('airbnbForm');
-    const submitButton = form.querySelector('button'); // Button element
-    const checkin = form.checkin;
-    const checkout = form.checkout;
+ <script>
+  const form = document.getElementById('airbnbForm');
+  const submitButton = form.querySelector('button');
+  const checkin = form.checkin;
+  const checkout = form.checkout;
 
-    // Mobile-proof min date
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const todayStr = ${yyyy}-${mm}-${dd};
+  // Mobile-proof min date
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${yyyy}-${mm}-${dd}`;
 
-    checkin.min = todayStr;
-    checkout.min = todayStr;
+  checkin.min = todayStr;
+  checkout.min = todayStr;
 
-    // Dynamic date rules
-    checkin.addEventListener('change', () => {
-      if (checkin.value < todayStr) checkin.value = todayStr;
-      if (checkout.value < checkin.value) checkout.value = checkin.value;
-      checkout.min = checkin.value;
-    });
+  // Dynamic date rules
+  checkin.addEventListener('change', () => {
+    if (checkin.value < todayStr) checkin.value = todayStr;
+    if (checkout.value < checkin.value) checkout.value = checkin.value;
+    checkout.min = checkin.value;
+  });
 
-    checkout.addEventListener('change', () => {
-      if (checkout.value < checkin.value) checkout.value = checkin.value;
-    });
+  checkout.addEventListener('change', () => {
+    if (checkout.value < checkin.value) checkout.value = checkin.value;
+  });
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      if (checkin.value < todayStr) {
-        alert('Check-in date cannot be in the past.');
+    if (checkin.value < todayStr) {
+      alert('Check-in date cannot be in the past.');
+      return;
+    }
+    if (checkout.value < checkin.value) {
+      alert('Check-out date cannot be before check-in.');
+      return;
+    }
+
+    const data = {
+      location: form.location.value,
+      checkin: form.checkin.value,
+      checkout: form.checkout.value,
+      guests: Number(form.guests.value),
+      pool: form.pool.checked,
+      pickleball: form.pickleball.checked,
+      privateGym: form.gym.checked
+    };
+
+    try {
+      const response = await fetch('https://n8n-hqbt.onrender.com/webhook-test/airbnb-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        mode: 'cors' // enable cross-origin requests
+      });
+
+      if (!response.ok) {
+        console.error('Server returned error:', response.status, response.statusText);
+        alert('Webhook error: ' + response.statusText);
         return;
       }
-      if (checkout.value < checkin.value) {
-        alert('Check-out date cannot be before check-in.');
-        return;
-      }
 
-      const data = {
-        location: form.location.value,
-        checkin: form.checkin.value,
-        checkout: form.checkout.value,
-        guests: form.guests.value,
-        pool: form.pool.checked,
-        pickleball: form.pickleball.checked,
-        privateGym: form.gym.checked
-      };
+      const json = await response.json();
+      console.log('Webhook response:', json);
+      alert('Webhook hit successfully! Check console for data.');
 
-      try {
-        const response = await fetch('https://n8n-hqbt.onrender.com/webhook-test/airbnb-search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        if (!response.ok) throw new Error('Network response was not ok');
-
-        // ===============================
-        // TEST MODE: log data instead of PDF
-        // ===============================
-        const json = await response.json();
-        console.log('Webhook response:', json);
-        alert('Webhook hit successfully! Check console for data.');
-
-        // ===============================
-        // PDF MODE: Uncomment this to enable PDF download
-        // ===============================
-        /*
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'Airbnb_Search.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        // Change button text back
-        submitButton.textContent = "Generate PDF";
-        */
-      } catch (error) {
-        alert('Error hitting webhook: ' + error.message);
-        console.error(error);
-      }
-    });
-  </script>
+      // ===============================
+      // PDF MODE: Uncomment to enable PDF download
+      // ===============================
+      /*
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Airbnb_Search.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      submitButton.textContent = "Generate PDF";
+      */
+    } catch (error) {
+      console.error('Network or CORS error:', error);
+      alert('Error hitting webhook: ' + error.message);
+    }
+  });
+</script>
 </body>
 </html>
