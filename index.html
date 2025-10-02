@@ -57,7 +57,9 @@
     button:hover { 
       background-color: #0056b3;
     } 
+         
   </style>
+<!-- Margin, text fields don't touch -->
 </head>  
 <body>
   <div class="container">
@@ -79,11 +81,6 @@
         Guests:
         <input type="number" name="guests" min="1" value="1" required>
       </label>
-      <button type="submit">Search Listings</button>
-    </form>
-
-    <!-- Amenities appear after listings are fetched -->
-    <div id="amenitiesContainer" style="display:none; margin-top:15px;">
       <label>
         Pool:
         <input type="checkbox" name="pool">
@@ -96,107 +93,96 @@
         Private Gym:
         <input type="checkbox" name="gym">
       </label>
-      <button id="filterButton">Filter Listings</button>
-    </div>
+      <button type="submit">Send Test Data</button> <!-- Button text shows test mode 
+    disable using <button type="submit">Generate PDF</button> -->
+    </form>
   </div>
+ <script>
+  const form = document.getElementById('airbnbForm');
+  const submitButton = form.querySelector('button');
+  const checkin = form.checkin;
+  const checkout = form.checkout;
 
-  <script>
-    const form = document.getElementById('airbnbForm');
-    const amenitiesContainer = document.getElementById('amenitiesContainer');
-    const submitButton = form.querySelector('button');
-    const checkin = form.checkin;
-    const checkout = form.checkout;
+  // Mobile-proof min date
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${yyyy}-${mm}-${dd}`;
 
-    let fetchedListings = [];
+  checkin.min = todayStr;
+  checkout.min = todayStr;
 
-    // Mobile-proof min date
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${yyyy}-${mm}-${dd}`;
+  // Dynamic date rules
+  checkin.addEventListener('change', () => {
+    if (checkin.value < todayStr) checkin.value = todayStr;
+    if (checkout.value < checkin.value) checkout.value = checkin.value;
+    checkout.min = checkin.value;
+  });
 
-    checkin.min = todayStr;
-    checkout.min = todayStr;
+  checkout.addEventListener('change', () => {
+    if (checkout.value < checkin.value) checkout.value = checkin.value;
+  });
 
-    // Dynamic date rules
-    checkin.addEventListener('change', () => {
-      if (checkin.value < todayStr) checkin.value = todayStr;
-      if (checkout.value < checkin.value) checkout.value = checkin.value;
-      checkout.min = checkin.value;
-    });
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    checkout.addEventListener('change', () => {
-      if (checkout.value < checkin.value) checkout.value = checkin.value;
-    });
+    if (checkin.value < todayStr) {
+      alert('Check-in date cannot be in the past.');
+      return;
+    }
+    if (checkout.value < checkin.value) {
+      alert('Check-out date cannot be before check-in.');
+      return;
+    }
 
-    // Step 1: Submit form to fetch listings
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    const data = {
+      location: form.location.value,
+      checkin: form.checkin.value,
+      checkout: form.checkout.value,
+      guests: Number(form.guests.value),
+      pool: form.pool.checked,
+      pickleball: form.pickleball.checked,
+      privateGym: form.gym.checked
+    };
 
-      if (checkin.value < todayStr) {
-        alert('Check-in date cannot be in the past.');
-        return;
-      }
-      if (checkout.value < checkin.value) {
-        alert('Check-out date cannot be before check-in.');
-        return;
-      }
-
-      const searchData = {
-        location: form.location.value,
-        checkin: form.checkin.value,
-        checkout: form.checkout.value,
-        guests: Number(form.guests.value),
-      };
-
-      try {
-        submitButton.disabled = true;
-        submitButton.textContent = 'Fetching Listings...';
-
-        const response = await fetch('https://n8n-hqbt.onrender.com/webhook/airbnb-search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(searchData),
-          mode: 'cors'
-        });
-
-        if (!response.ok) throw new Error(response.statusText);
-
-        fetchedListings = await response.json();
-        console.log('Listings fetched:', fetchedListings);
-
-        // Show amenities checkboxes now
-        amenitiesContainer.style.display = 'block';
-        submitButton.textContent = 'Search Listings';
-        submitButton.disabled = false;
-
-      } catch (error) {
-        console.error('Error fetching listings:', error);
-        alert('Failed to fetch listings: ' + error.message);
-        submitButton.textContent = 'Search Listings';
-        submitButton.disabled = false;
-      }
-    });
-
-    // Step 2: Filter listings based on amenities
-    document.getElementById('filterButton').addEventListener('click', () => {
-      const filters = {
-        pool: amenitiesContainer.querySelector('input[name="pool"]').checked,
-        pickleball: amenitiesContainer.querySelector('input[name="pickleball"]').checked,
-        privateGym: amenitiesContainer.querySelector('input[name="gym"]').checked
-      };
-
-      const filteredListings = fetchedListings.filter(item => {
-        const am = item.amenities || [];
-        return (!filters.pool || am.includes("Pool")) &&
-               (!filters.pickleball || am.includes("Pickleball court")) &&
-               (!filters.privateGym || am.includes("Private gym"));
+    try {
+      const response = await fetch('https://n8n-hqbt.onrender.com/webhook/airbnb-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        mode: 'cors' // enable cross-origin requests
       });
 
-      console.log('Filtered Listings:', filteredListings);
-      alert('Filtered listings ready! Check console.');
-    });
-  </script>
+      if (!response.ok) {
+        console.error('Server returned error:', response.status, response.statusText);
+        alert('Webhook error: ' + response.statusText);
+        return;
+      }
+
+      const json = await response.json();
+      console.log('Webhook response:', json);
+      alert('Webhook hit successfully! Check console for data.');
+
+      // ===============================
+      // PDF MODE: Uncomment to enable PDF download
+      // ===============================
+      /*
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Airbnb_Search.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      submitButton.textContent = "Generate PDF";
+      */
+    } catch (error) {
+      console.error('Network or CORS error:', error);
+      alert('Error hitting webhook: ' + error.message);
+    }
+  });
+</script>
 </body>
 </html>
