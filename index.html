@@ -488,7 +488,7 @@
               if (Array.isArray(item.json)) {
                 return item.json;
               }
-              return item.json;
+              return [item.json];
             });
           } else {
             listings = result;
@@ -500,6 +500,7 @@
         }
 
         console.log('Processed listings:', listings);
+        console.log('Number of listings:', listings.length);
         
         listings.sort((a, b) => (b.compatibilityScore || 0) - (a.compatibilityScore || 0));
         
