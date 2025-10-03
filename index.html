@@ -11,426 +11,309 @@
       box-sizing: border-box;
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-      background: #f7f7f7;
-      color: #222;
-      line-height: 1.6;
-    }
-
-    .container {
-      width: 90%;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* Search Form Styles */
-    .search-section {
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-    }
-
-    .search-section h1 {
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 28px;
-      color: #222;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 5px;
-      font-size: 14px;
-      color: #222;
-    }
-
-    input[type="text"],
-    input[type="date"],
-    input[type="number"] {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-      transition: border-color 0.2s;
-    }
-
-    input[type="text"]:focus,
-    input[type="date"]:focus,
-    input[type="number"]:focus {
-      outline: none;
-      border-color: #FF385C;
-    }
-
-    .amenities-section {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin: 20px 0;
-      padding: 15px;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .amenity-checkbox {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-
-    .amenity-checkbox input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      accent-color: #FF385C;
-    }
-
-    .amenity-checkbox label {
-      margin: 0;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 15px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .submit-btn:hover {
-      background-color: #0056b3;
-    }
-
-    .submit-btn:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    /* Results Section */
-    .results-section {
-      display: none;
-    }
-
-    .results-section.active {
-      display: block;
-    }
-
-    .results-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .results-count {
-      font-size: 20px;
-      font-weight: 600;
-    }
-
-    .new-search-btn {
-      padding: 10px 20px;
-      background: #fff;
-      color: #FF385C;
-      border: 2px solid #FF385C;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .new-search-btn:hover {
-      background: #FF385C;
-      color: white;
-    }
-
-    .listings-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 24px;
-    }
-
-    .listing-card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-    }
-
-    .listing-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    }
-
-    .listing-image {
-      width: 100%;
-      height: 220px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 48px;
-      position: relative;
-    }
-
-    .listing-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .compatibility-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .listing-content {
-      padding: 20px;
-    }
-
-    .listing-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .listing-location {
-      color: #717171;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-
-    .amenities-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 12px;
-      min-height: 30px;
-    }
-
-    .amenity-tag {
-      background: #FFF4F4;
-      color: #FF385C;
-      padding: 4px 10px;
-      border-radius: 16px;
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .listing-price {
-      font-size: 16px;
-      font-weight: 600;
-      color: #222;
-    }
-
-    .listing-price span {
-      font-weight: 400;
-      font-size: 14px;
-      color: #717171;
-    }
-
-    /* Loading & Error States */
-    .loading {
-      text-align: center;
-      padding: 60px 20px;
-      font-size: 18px;
-      color: #717171;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .loading::after {
-      content: '...';
-      animation: dots 1.5s steps(4, end) infinite;
-    }
-
-    @keyframes dots {
-      0%, 20% { content: '.'; }
-      40% { content: '..'; }
-      60%, 100% { content: '...'; }
-    }
-
-    .error-message {
-      background: #FFF4F4;
-      color: #C13515;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-      margin: 20px 0;
-    }
-
-    .no-results {
-      text-align: center;
-      padding: 60px 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .no-results h3 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #222;
-    }
-
-    .no-results p {
-      color: #717171;
-      font-size: 16px;
-    }
-
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .amenities-section {
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .results-header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-      }
-    }
-  /* ... all your existing styles ... */
-/* === TOGGLE SWITCH STYLES === */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 26px;
+  body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: #121212; /* dark background */
+  color: #e0e0e0; /* light text */
+  line-height: 1.6;
 }
 
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+.container {
+  width: 90%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.slider {
-  position: absolute;
-  cursor: pointer;
-  background-color: #ccc;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  transition: 0.4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #FF385C;
-}
-
-input:checked + .slider:before {
-  transform: translateX(24px);
-}
- /* Dark Mode - Expanded */
-body.dark-mode {
-  background: #121212;
-  color: #e0e0e0;
-}
-
-body.dark-mode .container {
-  background: none; /* Keep container transparent or as needed */
-}
-
-/* Form and Search Section */
-body.dark-mode .search-section {
+/* Search Form Styles */
+.search-section {
   background: #1e1e1e;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+.search-section h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 28px;
   color: #e0e0e0;
 }
 
-body.dark-mode label {
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 14px;
   color: #f0f0f0;
 }
 
-body.dark-mode input[type="text"],
-body.dark-mode input[type="date"],
-body.dark-mode input[type="number"] {
+input[type="text"],
+input[type="date"],
+input[type="number"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  font-size: 16px;
   background: #2b2b2b;
   color: #fff;
-  border: 1px solid #444;
+  transition: border-color 0.2s;
 }
 
-/* Amenities Section */
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="number"]:focus {
+  outline: none;
+  border-color: #FF385C;
+}
+
 .amenities-section {
-  background: #f9f9f9;
-}
-
-.amenities-section .amenity-checkbox label {
-  color: #444; /* slightly darker in light mode */
-}
-
-body.dark-mode .amenities-section {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+  padding: 15px;
   background: #2a2a2a;
+  border-radius: 8px;
 }
 
-body.dark-mode .amenities-section .amenity-checkbox label {
+.amenity-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.amenity-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #FF385C;
+}
+
+.amenity-checkbox label {
+  margin: 0;
+  cursor: pointer;
+  font-weight: 500;
   color: #fff; /* brighter in dark mode */
 }
-   
-   <!-- Dark Mode Toggle Switch -->
-<div style="text-align: right; margin-bottom: 10px;">
-  <label class="switch">
-    <input type="checkbox" id="darkModeToggle">
-    <span class="slider round"></span>
-  </label>
-</div>
-     <!-- Search Form -->
+
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  background-color: #FF385C;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #e03150;
+}
+
+.submit-btn:disabled {
+  background-color: #444;
+  cursor: not-allowed;
+}
+
+/* Results Section */
+.results-section {
+  display: none;
+}
+
+.results-section.active {
+  display: block;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.results-count {
+  font-size: 20px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.new-search-btn {
+  padding: 10px 20px;
+  background: #2a2a2a;
+  color: #FF385C;
+  border: 2px solid #FF385C;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.new-search-btn:hover {
+  background: #FF385C;
+  color: white;
+}
+
+/* Listing Cards */
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.listing-card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.listing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.listing-image {
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 48px;
+  position: relative;
+}
+
+.listing-content {
+  padding: 20px;
+}
+
+.listing-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.listing-location {
+  color: #aaa;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.amenities-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  min-height: 30px;
+}
+
+.amenity-tag {
+  background: #FF385C20;
+  color: #FF385C;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.listing-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.listing-price span {
+  font-weight: 400;
+  font-size: 14px;
+  color: #aaa;
+}
+
+/* Loading & Error States */
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 18px;
+  color: #aaa;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.error-message {
+  background: #2a2a2a;
+  color: #C13515;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.no-results h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+.no-results p {
+  color: #aaa;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .amenities-section {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .results-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Search Form -->
     <div class="search-section" id="searchSection">
       <h1>Find Your Perfect Airbnb</h1>
       <form id="airbnbForm">
@@ -672,19 +555,6 @@ body.dark-mode .amenities-section .amenity-checkbox label {
       searchSection.style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    // Dark Mode
-const darkModeToggle = document.getElementById('darkModeToggle');
-
-// Enable dark mode if system prefers
-if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-  document.body.classList.add('dark-mode');
-  darkModeToggle.checked = true;
-}
-
-// Manual toggle
-darkModeToggle.addEventListener('change', () => {
-  document.body.classList.toggle('dark-mode', darkModeToggle.checked);
-});
   </script>
 </body>
 </html>
