@@ -333,52 +333,103 @@
       }
     }
   /* ... all your existing styles ... */
+/* === TOGGLE SWITCH STYLES === */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
 
-  /* === DARK MODE STYLES === */
-  body.dark-mode {
-    background: #121212;
-    color: #e0e0e0;
-  }
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
 
-  body.dark-mode .search-section,
-  body.dark-mode .results-header,
-  body.dark-mode .listing-card,
-  body.dark-mode .no-results,
-  body.dark-mode .loading,
-  body.dark-mode .error-message {
-    background: #1e1e1e;
-    color: #e0e0e0;
-  }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.4s;
+  border-radius: 34px;
+}
 
-  body.dark-mode input[type="text"],
-  body.dark-mode input[type="date"],
-  body.dark-mode input[type="number"] {
-    background: #2b2b2b;
-    color: #e0e0e0;
-    border: 1px solid #444;
-  }
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
 
-  body.dark-mode .submit-btn {
-    background-color: #FF385C;
-  }
+input:checked + .slider {
+  background-color: #FF385C;
+}
 
-  body.dark-mode .new-search-btn {
-    background: #333;
-    color: #FF385C;
-    border: 2px solid #FF385C;
-  }
-  </style>
-</head>
-<body>
-  <div class="container">
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+ /* Dark Mode - Expanded */
+body.dark-mode {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+body.dark-mode .container {
+  background: none; /* Keep container transparent or as needed */
+}
+
+/* Form and Search Section */
+body.dark-mode .search-section {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark-mode label {
+  color: #f0f0f0;
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode input[type="date"],
+body.dark-mode input[type="number"] {
+  background: #2b2b2b;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+/* Amenities Section */
+.amenities-section {
+  background: #f9f9f9;
+}
+
+.amenities-section .amenity-checkbox label {
+  color: #444; /* slightly darker in light mode */
+}
+
+body.dark-mode .amenities-section {
+  background: #2a2a2a;
+}
+
+body.dark-mode .amenities-section .amenity-checkbox label {
+  color: #fff; /* brighter in dark mode */
+}
    
-    <!-- Dark Mode Toggle -->
-    <div style="text-align: right; margin-bottom: 10px;">
-      <label>
-        <input type="checkbox" id="darkModeToggle">
-        Dark Mode
-      </label>
-    </div>
+   <!-- Dark Mode Toggle Switch -->
+<div style="text-align: right; margin-bottom: 10px;">
+  <label class="switch">
+    <input type="checkbox" id="darkModeToggle">
+    <span class="slider round"></span>
+  </label>
+</div>
      <!-- Search Form -->
     <div class="search-section" id="searchSection">
       <h1>Find Your Perfect Airbnb</h1>
