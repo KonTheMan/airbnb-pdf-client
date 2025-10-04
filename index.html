@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Airbnb Search & Filter</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * {
       margin: 0;
@@ -23,6 +24,61 @@
       max-width: 1400px;
       margin: 0 auto;
       padding: 20px;
+    }
+
+    .auth-banner {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .auth-banner.signed-in {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .auth-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .auth-info img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+
+    .auth-text h3 {
+      font-size: 16px;
+      margin-bottom: 3px;
+    }
+
+    .auth-text p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .signout-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 2px solid white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .signout-btn:hover {
+      background: white;
+      color: #764ba2;
     }
 
     .search-section {
@@ -354,11 +410,32 @@
         gap: 15px;
         text-align: center;
       }
+
+      .auth-banner {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Auth Banner -->
+    <div class="auth-banner" id="authBanner">
+      <div class="auth-info">
+        <div id="googleSignInButton"></div>
+        <div class="auth-text" id="userInfo" style="display: none;">
+          <img id="userPhoto" src="" alt="User">
+          <div>
+            <h3 id="userName"></h3>
+            <p>Ready to export to Google Drive</p>
+          </div>
+        </div>
+      </div>
+      <button class="signout-btn" id="signoutBtn" style="display: none;" onclick="signOut()">Sign Out</button>
+    </div>
+
     <div class="search-section" id="searchSection">
       <h1>Find Your Perfect Airbnb</h1>
       <form id="airbnbForm">
@@ -414,6 +491,107 @@
   </div>
 
   <script>
+    // Your Google Client ID
+    const GOOGLE_CLIENT_ID = '529448847987-pfu9d0dv5i4o2h96ak7j4si19vdvou4i.apps.googleusercontent.com';
+    
+    let googleUser = null;
+    let accessToken = null;
+
+    // Initialize Google Sign-In
+    function initializeGoogleSignIn() {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+        auto_select: false,
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById('googleSignInButton'),
+        { 
+          theme: 'filled_blue', 
+          size: 'large',
+          text: 'signin_with',
+          shape: 'rectangular'
+        }
+      );
+
+      // Also initialize the token client for Drive access
+      window.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/drive.file',
+        callback: (response) => {
+          if (response.access_token) {
+            accessToken = response.access_token;
+            console.log('Got access token for Drive');
+          }
+        },
+      });
+    }
+
+    function handleCredentialResponse(response) {
+      // Decode the JWT token to get user info
+      const userInfo = parseJwt(response.credential);
+      
+      googleUser = {
+        name: userInfo.name,
+        email: userInfo.email,
+        picture: userInfo.picture
+      };
+
+      updateAuthUI(true);
+      
+      // Request Drive access token
+      window.tokenClient.requestAccessToken();
+    }
+
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    }
+
+    function updateAuthUI(signedIn) {
+      const authBanner = document.getElementById('authBanner');
+      const signInButton = document.getElementById('googleSignInButton');
+      const userInfo = document.getElementById('userInfo');
+      const signoutBtn = document.getElementById('signoutBtn');
+      const exportBtn = document.getElementById('exportBtn');
+
+      if (signedIn && googleUser) {
+        authBanner.classList.add('signed-in');
+        signInButton.style.display = 'none';
+        userInfo.style.display = 'flex';
+        signoutBtn.style.display = 'block';
+        
+        document.getElementById('userName').textContent = googleUser.name;
+        document.getElementById('userPhoto').src = googleUser.picture;
+        
+        exportBtn.disabled = false;
+      } else {
+        authBanner.classList.remove('signed-in');
+        signInButton.style.display = 'block';
+        userInfo.style.display = 'none';
+        signoutBtn.style.display = 'none';
+        exportBtn.disabled = true;
+      }
+    }
+
+    function signOut() {
+      google.accounts.id.disableAutoSelect();
+      googleUser = null;
+      accessToken = null;
+      updateAuthUI(false);
+    }
+
+    // Initialize when page loads
+    window.onload = () => {
+      initializeGoogleSignIn();
+      updateAuthUI(false);
+    };
+
     const form = document.getElementById('airbnbForm');
     const submitButton = form.querySelector('.submit-btn');
     const checkin = form.checkin;
@@ -424,7 +602,7 @@
     const resultsCount = document.getElementById('resultsCount');
     const exportBtn = document.getElementById('exportBtn');
 
-    let currentListings = []; // Store current listings for export
+    let currentListings = [];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -534,7 +712,7 @@
         console.log('Processed listings:', listings);
         console.log('Number of listings:', listings.length);
         
-        currentListings = listings; // Store for export
+        currentListings = listings;
         
         listings.sort((a, b) => (b.compatibilityScore || 0) - (a.compatibilityScore || 0));
         
@@ -617,6 +795,12 @@
     }
 
     async function exportToGoogleDrive() {
+      if (!accessToken) {
+        alert('Please sign in with Google first!');
+        window.tokenClient.requestAccessToken();
+        return;
+      }
+
       if (currentListings.length === 0) {
         alert('No listings to export');
         return;
@@ -636,7 +820,8 @@
               checkin: form.checkin.value,
               checkout: form.checkout.value,
               guests: form.guests.value
-            }
+            },
+            accessToken: accessToken
           })
         });
 
@@ -645,9 +830,8 @@
         }
 
         const result = await response.json();
-        alert('Successfully exported to Google Drive!');
+        alert('Successfully exported to your Google Drive!');
         
-        // Optionally open the file
         if (result.fileUrl) {
           window.open(result.fileUrl, '_blank');
         }
