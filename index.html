@@ -166,6 +166,32 @@
       color: white;
     }
 
+    .export-btn {
+      padding: 10px 20px;
+      background: #4285f4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .export-btn:hover {
+      background: #3367d6;
+    }
+
+    .export-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+
     .listings-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -378,7 +404,10 @@
     <div class="results-section" id="resultsSection">
       <div class="results-header">
         <div class="results-count" id="resultsCount"></div>
-        <button class="new-search-btn" onclick="newSearch()">New Search</button>
+        <div class="button-group">
+          <button class="export-btn" id="exportBtn" onclick="exportToGoogleDrive()">📄 Export to Google Drive</button>
+          <button class="new-search-btn" onclick="newSearch()">New Search</button>
+        </div>
       </div>
       <div id="listingsContainer"></div>
     </div>
@@ -393,6 +422,9 @@
     const resultsSection = document.getElementById('resultsSection');
     const listingsContainer = document.getElementById('listingsContainer');
     const resultsCount = document.getElementById('resultsCount');
+    const exportBtn = document.getElementById('exportBtn');
+
+    let currentListings = []; // Store current listings for export
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -502,6 +534,8 @@
         console.log('Processed listings:', listings);
         console.log('Number of listings:', listings.length);
         
+        currentListings = listings; // Store for export
+        
         listings.sort((a, b) => (b.compatibilityScore || 0) - (a.compatibilityScore || 0));
         
         displayListings(listings);
@@ -578,7 +612,53 @@
     function newSearch() {
       resultsSection.classList.remove('active');
       searchSection.style.display = 'block';
+      currentListings = [];
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function exportToGoogleDrive() {
+      if (currentListings.length === 0) {
+        alert('No listings to export');
+        return;
+      }
+
+      exportBtn.disabled = true;
+      exportBtn.textContent = '📄 Exporting...';
+
+      try {
+        const response = await fetch('https://n8n-hqbt.onrender.com/webhook/export-to-drive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            listings: currentListings,
+            searchCriteria: {
+              location: form.location.value,
+              checkin: form.checkin.value,
+              checkout: form.checkout.value,
+              guests: form.guests.value
+            }
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Export failed');
+        }
+
+        const result = await response.json();
+        alert('Successfully exported to Google Drive!');
+        
+        // Optionally open the file
+        if (result.fileUrl) {
+          window.open(result.fileUrl, '_blank');
+        }
+
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('Failed to export to Google Drive. Please try again.');
+      } finally {
+        exportBtn.disabled = false;
+        exportBtn.textContent = '📄 Export to Google Drive';
+      }
     }
   </script>
 </body>
