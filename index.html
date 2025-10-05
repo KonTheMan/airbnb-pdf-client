@@ -134,6 +134,11 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
+    .auth-banner.signed-in .export-btn-header:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: white;
+    }
+
     .export-btn-header:disabled {
       background: rgba(255,255,255,0.5);
       cursor: not-allowed;
@@ -607,12 +612,41 @@
     
     let googleUser = null;
     let accessToken = null;
+    let tokenExpiry = null;
+
+    // Cookie helper functions
+    function setCookie(name, value, days) {
+      const expires = new Date();
+      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) {
+          try {
+            return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
+          } catch (e) {
+            return null;
+          }
+        }
+      }
+      return null;
+    }
+
+    function deleteCookie(name) {
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+    }
 
     function initializeGoogleSignIn() {
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleCredentialResponse,
-        auto_select: false,
+        auto_select: true, // Enable auto-select for returning users
       });
 
       google.accounts.id.renderButton(
@@ -631,10 +665,61 @@
         callback: (response) => {
           if (response.access_token) {
             accessToken = response.access_token;
+            // Token typically expires in 1 hour (3600 seconds)
+            tokenExpiry = Date.now() + (response.expires_in || 3600) * 1000;
+            
+            // Save to cookies (30-day expiration for login persistence)
+            saveSession();
             console.log('Got access token for Drive');
           }
         },
       });
+
+      // Try to restore session on page load
+      restoreSession();
+    }
+
+    function saveSession() {
+      // Store user info in cookie (expires in 30 days)
+      if (googleUser) {
+        setCookie('airbnb_google_user', googleUser, 30);
+      }
+      
+      // Store token info in cookie (expires in 30 days, but we check actual token expiry separately)
+      if (accessToken && tokenExpiry) {
+        setCookie('airbnb_access_token', accessToken, 30);
+        setCookie('airbnb_token_expiry', tokenExpiry, 30);
+      }
+    }
+
+    function restoreSession() {
+      // Try to get user info from cookies
+      const savedUser = getCookie('airbnb_google_user');
+      const savedToken = getCookie('airbnb_access_token');
+      const savedExpiry = getCookie('airbnb_token_expiry');
+      
+      if (savedUser) {
+        googleUser = savedUser;
+        
+        // Check if we have a valid token
+        if (savedToken && savedExpiry && Date.now() < savedExpiry) {
+          accessToken = savedToken;
+          tokenExpiry = savedExpiry;
+          updateAuthUI(true);
+          console.log('Session restored from cookies');
+          return true;
+        } else {
+          // User info exists but token expired - show UI and request new token
+          updateAuthUI(true);
+          console.log('User restored, requesting new access token');
+          window.tokenClient.requestAccessToken();
+          return true;
+        }
+      }
+      
+      // If no valid session, prompt sign in with One Tap
+      google.accounts.id.prompt();
+      return false;
     }
 
     function handleCredentialResponse(response) {
@@ -647,6 +732,8 @@
       };
 
       updateAuthUI(true);
+      
+      // Request Drive access token
       window.tokenClient.requestAccessToken();
     }
 
@@ -690,16 +777,23 @@
     function handleSignOutToggle() {
       const toggle = document.getElementById('signoutToggle');
       if (!toggle.checked) {
+        // Clear session and cookies
         google.accounts.id.disableAutoSelect();
         googleUser = null;
         accessToken = null;
+        tokenExpiry = null;
+        
+        // Delete all cookies
+        deleteCookie('airbnb_google_user');
+        deleteCookie('airbnb_access_token');
+        deleteCookie('airbnb_token_expiry');
+        
         updateAuthUI(false);
       }
     }
 
     window.onload = () => {
       initializeGoogleSignIn();
-      updateAuthUI(false);
     };
 
     const form = document.getElementById('airbnbForm');
@@ -906,6 +1000,13 @@
     }
 
     async function exportToGoogleDrive() {
+      // Check if token is expired
+      if (tokenExpiry && Date.now() >= tokenExpiry) {
+        alert('Session expired. Please sign in again.');
+        window.tokenClient.requestAccessToken();
+        return;
+      }
+
       if (!accessToken) {
         alert('Please sign in with Google first!');
         window.tokenClient.requestAccessToken();
