@@ -1000,17 +1000,38 @@
     }
 
     async function exportToGoogleDrive() {
-      // Check if token is expired
-      if (tokenExpiry && Date.now() >= tokenExpiry) {
-        alert('Session expired. Please sign in again.');
-        window.tokenClient.requestAccessToken();
+      if (!googleUser) {
+        alert('Please sign in with Google first!');
         return;
       }
 
-      if (!accessToken) {
-        alert('Please sign in with Google first!');
-        window.tokenClient.requestAccessToken();
-        return;
+      // Check if token is expired or missing
+      if (!accessToken || (tokenExpiry && Date.now() >= tokenExpiry)) {
+        console.log('Token expired or missing, requesting new token...');
+        
+        // Request a new access token
+        return new Promise((resolve) => {
+          const originalCallback = window.tokenClient.callback;
+          
+          window.tokenClient.callback = (response) => {
+            if (response.access_token) {
+              accessToken = response.access_token;
+              tokenExpiry = Date.now() + (response.expires_in || 3600) * 1000;
+              saveSession();
+              
+              // Restore original callback
+              window.tokenClient.callback = originalCallback;
+              
+              // Now try export again
+              exportToGoogleDrive();
+            } else {
+              window.tokenClient.callback = originalCallback;
+              alert('Failed to get access token. Please try again.');
+            }
+          };
+          
+          window.tokenClient.requestAccessToken();
+        });
       }
 
       if (currentListings.length === 0) {
