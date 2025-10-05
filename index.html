@@ -764,6 +764,8 @@
         document.getElementById('signoutToggle').checked = true;
         
         exportBtn.disabled = false;
+        // Keep the visible class if it was already there (after a search)
+        // Don't remove it when signing in
       } else {
         authBanner.classList.remove('signed-in');
         signInButton.style.display = 'block';
